@@ -1,34 +1,17 @@
 import React from 'react';
 
 const Footer = () => {
-  const currentYear = new Date().getFullYear();
-
   return (
-    <footer className="bg-gray-900 text-gray-400 py-6 px-6 mt-auto border-t border-gray-800 w-full">
-      <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 text-center sm:text-left">
-        
-        {/* Left Side: Brand Name & Copyright */}
+    <footer className="w-full bg-gray-900 text-gray-400 py-4 px-4 text-xs mt-auto border-t border-gray-800">
+      <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
         <div>
-          <p className="text-sm font-medium text-gray-300 flex items-center justify-center sm:justify-start gap-2">
-            <span>🌿</span> Eco-Health Track Dashboard
-          </p>
-          <p className="text-xs text-gray-500 mt-1">
-            © {currentYear} All Rights Reserved. Track your carbon & vitals.
-          </p>
+          <p className="font-semibold text-gray-300">🌿 Eco-Track Analytics Index</p>
+          <p className="text-gray-500 text-[11px] mt-0.5">© {new Date().getFullYear()} Carbon and Biometrics sync matrix layer.</p>
         </div>
-
-        {/* Right Side: Quick Status Indicators */}
-        <div className="flex flex-wrap justify-center gap-6 text-xs font-medium">
-          <div className="flex items-center space-x-1.5 text-emerald-400">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span>Frontend Deployed (Vercel)</span>
-          </div>
-          <div className="flex items-center space-x-1.5 text-blue-400">
-            <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
-            <span>API Connected (Render)</span>
-          </div>
+        <div className="flex space-x-4 text-[11px]">
+          <span className="text-emerald-400 flex items-center gap-1">🟢 Vercel Web App</span>
+          <span className="text-blue-400 flex items-center gap-1">🟢 MongoDB Atlas Cluster</span>
         </div>
-
       </div>
     </footer>
   );

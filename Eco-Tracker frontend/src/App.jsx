@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'ajax';
+import axios from 'axios';
 
 const API_BASE_URL = 'https://eco-track-3-u27a.onrender.com';
 
@@ -89,7 +89,7 @@ const LocalFooter = () => (
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [authMode, setAuthMode] = useState('register'); // DEFAULT SET TO REGISTER NOW
+  const [authMode, setAuthMode] = useState('register'); // Default ab Registration screen dikhegi sabse pehle
   
   // Form State Streams
   const [authEmail, setAuthEmail] = useState('');
@@ -151,13 +151,14 @@ function App() {
     }
   };
 
-  // DYNAMIC REGISTRATION AND AUTO LOGIN PIPELINE
+  // LINKEDIN FLOW: REGISTRATION SE SEEDHA LOGIN PAR VELOCITY SHIFT
   const handleRegisterSubmit = (e) => {
     e.preventDefault();
     if (!authEmail || !authPassword || !regName) return;
 
     const computedAge = (new Date().getFullYear() - new Date(regDob).getFullYear()).toString();
 
+    // Temporarily temporary profile save kar rha h data sync ke liye
     setUser({
       name: regName,
       email: authEmail.trim(),
@@ -168,8 +169,9 @@ function App() {
       bloodGroup: regBlood
     });
 
-    setIsAuthenticated(true);
-    setCurrentTab('landing');
+    // Alert dega real experience ke liye aur user ko redirect karega Login form par
+    alert("Account created successfully! Please Sign In to verify credentials.");
+    setAuthMode('login'); // Shifts view to Login tab automatically
   };
 
   const handleLogout = () => {
@@ -177,7 +179,7 @@ function App() {
     setAuthEmail('');
     setAuthPassword('');
     setRegName('');
-    setAuthMode('login'); // Logout hone ke baad login tab par bejhega
+    setAuthMode('login');
     setCurrentTab('landing');
   };
 
@@ -354,7 +356,7 @@ function App() {
               </div>
             </form>
           ) : (
-            /* MODE B: REGISTRATION GRID PANEL (AUTO LOGIN CAPABLE) */
+            /* MODE B: REGISTRATION GRID PANEL */
             <form onSubmit={handleRegisterSubmit} className="space-y-3.5 text-xs font-mono">
               <div>
                 <label className="block text-slate-400 mb-1 uppercase text-[9px] tracking-wider">Full Core Identity (Name)</label>

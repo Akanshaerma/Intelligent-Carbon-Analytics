@@ -80,17 +80,12 @@ const LocalFooter = () => (
   </footer>
 );
 
-// ==========================================
-// MAIN RE-ENGINEERED MULTI-PAGE APPLICATION
-// ==========================================
 function App() {
-  const [currentTab, setCurrentTab] = useState('landing'); // Routing States: landing, dashboard, ledger
+  const [currentTab, setCurrentTab] = useState('landing');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authEmail, setAuthEmail] = useState('');
   const [authPassword, setAuthPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
-  // Archive Filter State
   const [filterThreshold, setFilterThreshold] = useState('0');
 
   const [user, setUser] = useState({
@@ -236,40 +231,45 @@ function App() {
       <LocalHeader currentTab={currentTab} setCurrentTab={setCurrentTab} userProfile={user} onOpenEditModal={() => { setFormData({ ...user }); setIsModalOpen(true); }} />
 
       {/* ==========================================
-          PAGE 1: ENTERPRISE SAAS LANDING PORTAL
+          PAGE 1: NEW SLEEK SAAS LANDING PORTAL
           ========================================== */}
       {currentTab === 'landing' && (
-        <div className="flex-grow max-w-5xl mx-auto w-full p-6 sm:p-12 flex flex-col justify-center items-center text-center space-y-8 animate-fade-in">
+        <div className="flex-grow max-w-5xl mx-auto w-full p-6 sm:p-16 flex flex-col justify-center items-center text-center space-y-8 animate-fade-in">
           <div className="space-y-4">
-            <span className="text-[11px] font-mono font-black tracking-widest uppercase text-emerald-700 bg-emerald-50 px-4 py-1.5 rounded-full border border-emerald-200">Industrial Eco-Informatics Core Suite</span>
-            <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-gray-900 uppercase">
-              Next-Gen Sustainability <br/><span className="text-emerald-700">Predictive Modeling</span>
+            <span className="text-[10px] font-mono font-black tracking-widest uppercase text-emerald-700 bg-emerald-50 px-4 py-1.5 rounded-full border border-emerald-200">Industrial Eco-Informatics Suite</span>
+            
+            {/* NEW BEAUTIFUL GRADIENT TITLE */}
+            <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-gray-900 leading-tight">
+              Intelligent Carbon Analytics <br/>
+              <span className="bg-gradient-to-r from-emerald-600 to-teal-700 bg-clip-text text-transparent font-black">
+                & Real-Time Modeling.
+              </span>
             </h1>
-            <p className="max-w-2xl text-gray-500 text-sm sm:text-base font-sans">
+            
+            <p className="max-w-2xl text-gray-500 text-xs sm:text-sm font-sans leading-relaxed">
               An enterprise-grade full-stack orchestration layout mapped against decentralized bio-metrics and real-time ledger auditing. Built for corporate environmental impact tracking.
             </p>
           </div>
 
-          {/* METRIC HIGHLIGHT FEATURE GRID */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full pt-6">
             <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm text-left">
-              <span className="text-2xl">📈</span>
-              <h3 className="font-bold text-gray-800 mt-2 text-sm uppercase">SVG Vector Engine</h3>
-              <p className="text-xs text-gray-400 mt-1">Lightweight, zero-overhead browser line plots rendered natively via state coordinate streams.</p>
+              <span className="text-xl">📈</span>
+              <h3 className="font-bold text-gray-800 mt-2 text-xs uppercase tracking-wider">SVG Vector Engine</h3>
+              <p className="text-[11px] text-gray-400 mt-1 leading-normal">Lightweight browser line plots rendered natively via state coordinate streams.</p>
             </div>
             <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm text-left">
-              <span className="text-2xl">🔬</span>
-              <h3 className="font-bold text-gray-800 mt-2 text-sm uppercase">Linear Regression</h3>
-              <p className="text-xs text-gray-400 mt-1">Embedded Time-Series trend analysis algorithms calculating next-cycle predictive limits dynamically.</p>
+              <span className="text-xl">🔬</span>
+              <h3 className="font-bold text-gray-800 mt-2 text-xs uppercase tracking-wider">Linear Regression</h3>
+              <p className="text-[11px] text-gray-400 mt-1 leading-normal">Embedded Time-Series trend algorithms calculating predictive limits dynamically.</p>
             </div>
             <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm text-left">
-              <span className="text-2xl">🌐</span>
-              <h3 className="font-bold text-gray-800 mt-2 text-sm uppercase">MongoDB Infrastructure</h3>
-              <p className="text-xs text-gray-400 mt-1">Tightly synchronized backend api endpoints routing data securely into a cloud atomic ledger database.</p>
+              <span className="text-xl">🌐</span>
+              <h3 className="font-bold text-gray-800 mt-2 text-xs uppercase tracking-wider">MongoDB Infrastructure</h3>
+              <p className="text-[11px] text-gray-400 mt-1 leading-normal">Synchronized backend api endpoints routing data securely into cloud databases.</p>
             </div>
           </div>
 
-          <div className="flex gap-4">
+          <div className="flex gap-4 pt-4">
             <button onClick={() => setCurrentTab('dashboard')} className="px-6 py-3 bg-emerald-700 text-white font-mono font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg hover:bg-emerald-800 transition">
               Launch Workspace Engine →
             </button>
@@ -281,12 +281,10 @@ function App() {
       )}
 
       {/* ==========================================
-          PAGE 2: CENTRAL ANALYTICS DASHBOARD (FORMER DASHBOARD VIEW)
+          PAGE 2: CENTRAL ANALYTICS DASHBOARD
           ========================================== */}
       {currentTab === 'dashboard' && (
         <main className="flex-grow p-4 sm:p-8 max-w-7xl mx-auto w-full space-y-8 animate-fade-in">
-          
-          {/* ANALYTICS HIGHLIGHT CARDS */}
           <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-md">
               <span className="text-xs font-bold font-mono uppercase text-gray-400 block mb-1">Time-Series Forecast</span>
@@ -306,7 +304,6 @@ function App() {
             </div>
           </section>
 
-          {/* CHART PLATFORM */}
           <section className="bg-white p-6 rounded-3xl border border-gray-100 shadow-xl">
             <h3 className="text-sm font-black text-gray-800 uppercase tracking-tight border-b pb-3 mb-4">📈 Core Telemetry Real-Time Graphic Streaming</h3>
             <div className="w-full bg-slate-50 rounded-2xl p-4">
@@ -340,7 +337,6 @@ function App() {
             </div>
           </section>
 
-          {/* MUTATOR CONTROLS */}
           <section className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-xl lg:col-span-2">
               <h3 className="text-sm font-black text-gray-800 uppercase tracking-tight border-b pb-3 mb-4">📊 Database Integration Node</h3>
@@ -376,7 +372,7 @@ function App() {
       )}
 
       {/* ==========================================
-          PAGE 3: DEDICATED DATABASE LEDGER ARCHIVES (ADVANCED CONTROLS)
+          PAGE 3: DATABASE LEDGER ARCHIVES
           ========================================== */}
       {currentTab === 'ledger' && (
         <main className="flex-grow p-4 sm:p-8 max-w-7xl mx-auto w-full space-y-6 animate-fade-in">
@@ -385,8 +381,6 @@ function App() {
               <h2 className="text-lg font-black text-gray-900 uppercase">📜 Enterprise Storage Archives</h2>
               <p className="text-xs text-gray-400 font-mono">Run complex queries and download data sets directly from the cloud instances.</p>
             </div>
-            
-            {/* ADVANCED RE-ENGINEERED ARRAYS FILTER CONTROLS */}
             <div className="flex flex-wrap items-center gap-4 text-xs font-mono">
               <div className="flex items-center space-x-2 bg-gray-50 px-3 py-2 rounded-xl border">
                 <span className="text-gray-400 uppercase text-[10px] font-bold">Filter Threshold:</span>
@@ -445,7 +439,7 @@ function App() {
               <span>⚙️ Calibrate Bio-Metrics</span>
               <button type="button" onClick={() => setIsModalOpen(false)} className="text-base font-black">✕</button>
             </div>
-            <form onSubmit={(e) => { e.preventDefault(); setUser({ ...formData, age: (new Date().getFullYear() - new Date(formData.dob).getFullYear()).toString() }); setIsModalOpen(false); }} className="p-6 space-y-4">
+            <form onSubmit={(e) => { e.preventDefault(); setUser({ ...formData, age: (new Date().getFullYear() - new Date(formData.dob).getFullYear()).toString() }); setIsModalOpen(true); }} className="p-6 space-y-4">
               <div>
                 <label className="block text-gray-400 mb-1 uppercase text-[9px]">Subject Node Name</label>
                 <input type="text" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="w-full p-3 border rounded-xl" required />

@@ -1,279 +1,191 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Header from './components/Header';
+import Footer from './components/Footer';
 
 // 💡 Tumhara live Render backend URL
 const API_BASE_URL = 'https://eco-track-3-u27a.onrender.com';
 
 function App() {
-  // Authentication States
+  // Authentication & Mock User Profile State for Header
   const [isLogin, setIsLogin] = useState(true);
-  const [token, setToken] = useState(localStorage.getItem('token') || '');
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [authMessage, setAuthMessage] = useState('');
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [user, setUser] = useState({
+    name: "Akansha Verma",
+    email: "akansha@ecotrack.com",
+    age: "23",
+    height: "165",
+    weight: "58",
+    bloodGroup: "B+"
+  });
 
-  // Carbon Footprint Calculator States
-  const [transport, setTransport] = useState('');
+  // Carbon Tracker Inputs State
+  const [travel, setTravel] = useState('');
   const [electricity, setElectricity] = useState('');
   const [food, setFood] = useState('');
-  const [calculatedResult, setCalculatedResult] = useState(null);
-  const [dashboardMessage, setDashboardMessage] = useState('');
-  const [history, setHistory] = useState([]); // New History State
+  const [logs, setLogs] = useState([]);
+  const [currentImpact, setCurrentImpact] = useState(null);
 
-  // Automatically setup token
+  // Fetch Past Logs from MongoDB
   useEffect(() => {
-    if (token) {
-      localStorage.setItem('token', token);
-      fetchHistory(); // Fetch history when logged in
-    } else {
-      localStorage.removeItem('token');
-    }
-  }, [token]);
+    fetchLogs();
+  }, []);
 
-  // Function to fetch history from backend
-  const fetchHistory = async () => {
+  const fetchLogs = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/api/footprint`);
-      setHistory(res.data);
+      const response = await axios.get(`${API_BASE_URL}/api/logs`);
+      setLogs(response.data);
     } catch (error) {
-      console.error("Error fetching history", error);
+      console.error("Error fetching logs:", error);
     }
   };
 
-  // Handle Login & Registration
-  const handleAuthSubmit = async (e) => {
+  const handleCalculate = async (e) => {
     e.preventDefault();
-    setAuthMessage('');
-    
-    const endpoint = isLogin 
-      ? `${API_BASE_URL}/api/auth/login` 
-      : `${API_BASE_URL}/api/auth/register`;
-      
-    const payload = isLogin ? { email, password } : { name, email, password };
-
-    try {
-      const res = await axios.post(endpoint, payload);
-      setIsSuccess(true);
-      
-      if (isLogin) {
-        setAuthMessage(`Welcome Back! 🎉`);
-        setToken(res.data.token);
-      } else {
-        setAuthMessage('Registration Successful! Switching to Sign In... 🎉');
-        setTimeout(() => {
-          setIsLogin(true);
-          setAuthMessage('');
-          setName('');
-        }, 2000);
-      }
-    } catch (error) {
-      setIsSuccess(false);
-      setAuthMessage(error.response?.data?.message || 'Authentication Failed! ❌');
+    if (!travel || !electricity || !food) {
+      alert("Please fill all fields!");
+      return;
     }
-  };
 
-  // Handle Carbon Calculation & Save
-  const handleCalculateFootprint = async (e) => {
-    e.preventDefault();
-    setDashboardMessage('');
-
-    const totalCarbon = (Number(transport) * 0.21) + (Number(electricity) * 0.85) + (Number(food) * 2.5);
-    const finalResult = totalCarbon.toFixed(2);
+    const payload = {
+      travel: parseFloat(travel),
+      electricity: parseFloat(electricity),
+      food: parseFloat(food)
+    };
 
     try {
-      await axios.post(`${API_BASE_URL}/api/footprint`, 
-        { transport, electricity, food, totalFootprint: finalResult }
-      );
+      const response = await axios.post(`${API_BASE_URL}/api/logs`, payload);
+      setCurrentImpact(response.data.currentImpact);
+      fetchLogs(); // Refresh historical data table
       
-      setCalculatedResult(finalResult);
-      setDashboardMessage('Footprint tracked and saved successfully! 📉🌱');
-      fetchHistory(); // Refresh history immediately after saving
       // Clear inputs
-      setTransport('');
+      setTravel('');
       setElectricity('');
       setFood('');
     } catch (error) {
-      setCalculatedResult(finalResult);
-      setDashboardMessage('Saved locally (Backend issue)! 💡');
+      console.error("Error saving log:", error);
     }
   };
 
-  // Logout Handler
   const handleLogout = () => {
-    setToken('');
-    setCalculatedResult(null);
-    setDashboardMessage('');
-    setHistory([]);
+    alert("Logging out...");
+    // Handle logout flow here if needed
   };
 
-  // Condition 1: SHOW DASHBOARD
-  if (token) {
-    return (
-      <div className="min-h-screen bg-green-50 p-6 flex flex-col items-center">
-        {/* Header */}
-        <div className="w-full max-w-4xl flex justify-between items-center mb-8 bg-white p-4 rounded-xl shadow-md border border-green-100">
-          <div>
-            <h1 className="text-2xl font-bold text-green-800">🌿 Eco-Track Dashboard</h1>
-            <p className="text-sm text-gray-500">Tracking your green footsteps</p>
-          </div>
-          <button 
-            onClick={handleLogout}
-            className="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg transition"
-          >
-            Logout
-          </button>
+  return (
+    <div className="flex flex-col min-h-screen bg-gray-50">
+      {/* 1. TOP DYNAMIC HEADER WITH USER PROFILE */}
+      <Header userProfile={user} onLogout={handleLogout} />
+
+      {/* 2. MAIN CORE LAYOUT CONTENT */}
+      <main className="flex-grow p-4 sm:p-6 max-w-7xl mx-auto w-full">
+        {/* Top welcome section */}
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold text-gray-800">Welcome Back, {user.name}!</h2>
+          <p className="text-sm text-gray-500">Track your sustainability metrics and maintain your physical vitals seamlessly.</p>
         </div>
 
-        <div className="w-full max-w-4xl space-y-6">
-          {/* Top Grid: Form & Result */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Form */}
-            <div className="bg-white p-6 rounded-2xl shadow-xl border border-green-100">
-              <h3 className="text-xl font-bold text-gray-800 mb-4">Calculate New Footprint</h3>
-              <form onSubmit={handleCalculateFootprint} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Monthly Travel (KM)</label>
-                  <input 
-                    type="number" 
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-green-400"
-                    placeholder="e.g. 150" 
-                    value={transport}
-                    onChange={(e) => setTransport(e.target.value)}
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Electricity Bills (kWh)</label>
-                  <input 
-                    type="number" 
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-green-400"
-                    placeholder="e.g. 200" 
-                    value={electricity}
-                    onChange={(e) => setElectricity(e.target.value)}
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Meat/Food waste (KG)</label>
-                  <input 
-                    type="number" 
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-green-400"
-                    placeholder="e.g. 30" 
-                    value={food}
-                    onChange={(e) => setFood(e.target.value)}
-                    required
-                  />
-                </div>
-                <button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition">
-                  Calculate & Track
-                </button>
-              </form>
-            </div>
-
-            {/* Results */}
-            <div className="bg-white p-6 rounded-2xl shadow-xl border border-green-100 flex flex-col justify-between">
+        {/* Form and Impact Summary Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* Calculate New Footprint Card */}
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+            <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+              📊 Calculate New Footprint
+            </h3>
+            <form onSubmit={handleCalculate} className="space-y-4">
               <div>
-                <h3 className="text-xl font-bold text-gray-800 mb-4">Your Impact Summary</h3>
-                {calculatedResult ? (
-                  <div className="text-center my-6">
-                    <div className="text-5xl font-extrabold text-green-600 mb-2">{calculatedResult}</div>
-                    <p className="text-gray-600 font-medium">kg of CO2 / month</p>
-                  </div>
-                ) : (
-                  <div className="text-center text-gray-400 my-12 italic">
-                    No footprint data logged yet. Put values to see your impact.
-                  </div>
-                )}
+                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Monthly Travel (KM)</label>
+                <input 
+                  type="number" 
+                  value={travel} 
+                  onChange={(e) => setTravel(e.target.value)} 
+                  placeholder="e.g. 150" 
+                  className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500"
+                />
               </div>
-              {dashboardMessage && (
-                <div className="p-3 bg-green-50 text-green-800 text-center text-xs font-semibold rounded-lg border border-green-200">
-                  {dashboardMessage}
-                </div>
-              )}
-            </div>
+              <div>
+                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Electricity Bills (kWh)</label>
+                <input 
+                  type="number" 
+                  value={electricity} 
+                  onChange={(e) => setElectricity(e.target.value)} 
+                  placeholder="e.g. 200" 
+                  className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Meat/Food waste (KG)</label>
+                <input 
+                  type="number" 
+                  value={food} 
+                  onChange={(e) => setFood(e.target.value)} 
+                  placeholder="e.g. 30" 
+                  className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+              <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold p-3 rounded-xl transition shadow-sm">
+                Calculate & Track
+              </button>
+            </form>
           </div>
 
-          {/* History Logs Section */}
-          <div className="bg-white p-6 rounded-2xl shadow-xl border border-green-100">
-            <h3 className="text-xl font-bold text-gray-800 mb-4">📜 Past Footprint Logs (From MongoDB)</h3>
-            {history.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-green-600 text-white text-sm">
-                      <th className="p-3 rounded-l-lg">Date</th>
-                      <th className="p-3">Travel (KM)</th>
-                      <th className="p-3">Electricity (kWh)</th>
-                      <th className="p-3">Food (KG)</th>
-                      <th className="p-3 rounded-r-lg">Total Carbon (CO2)</th>
-                    </tr>
-                  </thead>
-                  <tbody className="text-sm divide-y divide-gray-100">
-                    {history.map((log) => (
-                      <tr key={log._id} className="hover:bg-green-50 text-gray-700">
-                        <td className="p-3 font-medium text-gray-500">
-                          {new Date(log.createdAt).toLocaleDateString('en-IN', {day: 'numeric', month: 'short', year: 'numeric'})}
-                        </td>
-                        <td className="p-3">{log.transport} km</td>
-                        <td className="p-3">{log.electricity} kWh</td>
-                        <td className="p-3">{log.food} kg</td>
-                        <td className="p-3 font-bold text-green-600">{log.totalFootprint} kg</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+          {/* Dynamic Impact Status Summary Card */}
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-center items-center text-center">
+            <h3 className="text-lg font-bold text-gray-800 mb-2 self-start">💡 Your Impact Summary</h3>
+            {currentImpact ? (
+              <div className="w-full bg-emerald-50 border border-emerald-100 p-6 rounded-xl animate-fade-in">
+                <span className="text-4xl">🌱</span>
+                <h4 className="text-xl font-bold text-emerald-800 mt-2">Emission Computed Successfully!</h4>
+                <p className="text-3xl font-extrabold text-gray-800 mt-3">{currentImpact} <span className="text-sm font-normal text-gray-500">kg CO₂</span></p>
+                <p className="text-xs text-emerald-600 mt-2">This log has been pushed to your synchronized MongoDB storage layer.</p>
               </div>
             ) : (
-              <div className="text-center text-gray-400 py-6 italic">
-                No historical records found in database.
-              </div>
+              <p className="text-sm text-gray-400 italic">
+                No footprint data logged yet in this session. Put values to see your instant footprint impact breakdown.
+              </p>
             )}
           </div>
         </div>
-      </div>
-    );
-  }
 
-  // Condition 2: SHOW AUTHENTICATION
-  return (
-    <div className="min-h-screen bg-green-50 flex flex-col justify-center items-center p-4">
-      <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-green-100">
-        <h2 className="text-3xl font-bold text-green-800 text-center mb-2">🌿 Eco-Track</h2>
-        <p className="text-gray-500 text-center mb-6 text-sm">Reduce your footprint, save the planet.</p>
-        
-        <div className="flex mb-6 bg-gray-100 rounded-lg p-1">
-          <button type="button" className={`w-1/2 py-2 text-sm font-medium rounded-md transition-all ${isLogin ? 'bg-green-600 text-white shadow' : 'text-gray-600'}`} onClick={() => { setIsLogin(true); setAuthMessage(''); }}>Sign In</button>
-          <button type="button" className={`w-1/2 py-2 text-sm font-medium rounded-md transition-all ${!isLogin ? 'bg-green-600 text-white shadow' : 'text-gray-600'}`} onClick={() => { setIsLogin(false); setAuthMessage(''); }}>Register</button>
+        {/* Past Footprint Logs Table Section */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="p-5 border-b border-gray-100 bg-gray-50/50">
+            <h3 className="text-base font-bold text-gray-800 flex items-center gap-2">
+              📜 Past Footprint Logs (From MongoDB Atlas Cluster)
+            </h3>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-gray-100 text-gray-600 text-xs font-bold uppercase tracking-wider">
+                  <th className="p-4">Date Logged</th>
+                  <th className="p-4">Travel (KM)</th>
+                  <th className="p-4">Electricity (kWh)</th>
+                  <th className="p-4">Food (KG)</th>
+                  <th className="p-4 text-emerald-600">Total Carbon (CO₂)</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 text-sm text-gray-700">
+                {logs.length > 0 ? logs.map((log, index) => (
+                  <tr key={index} className="hover:bg-gray-50/50 transition">
+                    <td className="p-4 font-medium text-gray-500">{new Date(log.createdAt || Date.now()).toLocaleDateString('en-GB')}</td>
+                    <td className="p-4">{log.travel} km</td>
+                    <td className="p-4">{log.electricity} kWh</td>
+                    <td className="p-4">{log.food} kg</td>
+                    <td className="p-4 font-bold text-emerald-600">{log.totalCarbon || (log.travel*0.2 + log.electricity*0.5 + log.food*2.5).toFixed(2)} kg</td>
+                  </tr>
+                )) : (
+                  <tr>
+                    <td colSpan="5" className="p-8 text-center text-gray-400 italic">No historical logs parsed from cluster database.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
+      </main>
 
-        <form onSubmit={handleAuthSubmit} className="space-y-4">
-          {!isLogin && (
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">Full Name</label>
-              <input type="text" className="w-full px-4 py-2 border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-green-400" placeholder="John Doe" value={name} onChange={(e) => setName(e.target.value)} required />
-            </div>
-          )}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Email Address</label>
-            <input type="email" className="w-full px-4 py-2 border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-green-400" placeholder="enter email..." value={email} onChange={(e) => setEmail(e.target.value)} required />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Password</label>
-            <input type="password" className="w-full px-4 py-2 border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-green-400" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
-          </div>
-          <button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition">
-            {isLogin ? 'Sign In' : 'Sign Up'}
-          </button>
-        </form>
-
-        {authMessage && (
-          <div className={`mt-4 p-3 text-center text-sm font-medium rounded-lg border ${isSuccess ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-800 border-red-200'}`}>
-            {authMessage}
-          </div>
-        )}
-      </div>
+      {/* 3. STANDALONE ATTACHED FOOTER COMPONENT */}
+      <Footer />
     </div>
   );
 }

@@ -83,7 +83,7 @@ const LocalHeader = ({ currentTab, setCurrentTab, userProfile, onOpenEditModal, 
 const LocalFooter = () => (
   <footer className="w-full bg-gray-950 text-gray-500 py-6 px-6 text-xs border-t border-gray-900 font-mono text-center mt-auto">
     <p className="font-bold text-gray-400 tracking-wide">🔬 Industrial Full-Stack Sustainability Analytics Framework v6.0.0</p>
-    <p className="text-gray-600 text-[10px] mt-1">Secure Session Managed Gatekeeper Engaged. © 2026.</p>
+    <p className="text-gray-600 text-[10px] mt-1">Universal Sandbox Access Engine Engaged. © 2026.</p>
   </footer>
 );
 
@@ -91,14 +91,13 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authEmail, setAuthEmail] = useState('');
   const [authPassword, setAuthPassword] = useState('');
-  const [authError, setAuthError] = useState('');
   
   const [currentTab, setCurrentTab] = useState('landing');
   const [isLoading, setIsLoading] = useState(false);
   const [filterThreshold, setFilterThreshold] = useState('0');
 
   const [user, setUser] = useState({
-    name: "Akansha Verma", email: "akansha@ecotrack.com", dob: "2005-08-20", age: "21", height: "152.4", weight: "40", bloodGroup: "B+"
+    name: "User Terminal Node", email: "user@ecotrack.com", dob: "2005-08-20", age: "21", height: "152.4", weight: "40", bloodGroup: "B+"
   });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -129,13 +128,18 @@ function App() {
 
   const handleLoginSubmit = (e) => {
     e.preventDefault();
-    setAuthError('');
-    // Strict Corporate Verification Matrix Proxy
-    if (authEmail.trim() === 'akansha@ecotrack.com' && authPassword === 'admin123') {
+    // Universal Pass Gateway Matrix
+    if (authEmail.trim().length > 3 && authPassword.length >= 4) {
+      const extractedName = authEmail.split('@')[0];
+      const formattedName = extractedName.charAt(0).toUpperCase() + extractedName.slice(1);
+      
+      setUser(prev => ({
+        ...prev,
+        name: formattedName || "Active Terminal Node",
+        email: authEmail.trim()
+      }));
       setIsAuthenticated(true);
       setCurrentTab('landing');
-    } else {
-      setAuthError('Invalid Terminal Credentials. Access Denied.');
     }
   };
 
@@ -263,18 +267,12 @@ function App() {
             <p className="text-xs font-mono text-slate-400">Initialize Encrypted Full-Stack Management Nodes</p>
           </div>
 
-          {authError && (
-            <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-center text-xs font-mono font-bold text-rose-400 animate-pulse">
-              ❌ {authError}
-            </div>
-          )}
-
           <form onSubmit={handleLoginSubmit} className="space-y-4 text-xs font-mono">
             <div>
               <label className="block text-slate-400 mb-1.5 uppercase text-[9px] tracking-wider">Access Node Link (Email)</label>
               <input
                 type="email"
-                placeholder="e.g. akansha@ecotrack.com"
+                placeholder="Enter any email address..."
                 value={authEmail}
                 onChange={e => setAuthEmail(e.target.value)}
                 className="w-full p-3.5 bg-slate-950/60 border border-slate-700 rounded-xl text-slate-200 focus:outline-none focus:border-emerald-500 transition"
@@ -285,7 +283,7 @@ function App() {
               <label className="block text-slate-400 mb-1.5 uppercase text-[9px] tracking-wider">Secret Security Key (Password)</label>
               <input
                 type="password"
-                placeholder="••••••••"
+                placeholder="Enter any password (min 4 chars)..."
                 value={authPassword}
                 onChange={e => setAuthPassword(e.target.value)}
                 className="w-full p-3.5 bg-slate-950/60 border border-slate-700 rounded-xl text-slate-200 focus:outline-none focus:border-emerald-500 transition"
@@ -302,11 +300,6 @@ function App() {
               </button>
             </div>
           </form>
-
-          <div className="bg-slate-950/40 p-3.5 rounded-xl border border-slate-700/40 text-[10px] font-mono text-slate-500 text-center leading-relaxed">
-            <span className="text-emerald-500/70 font-bold">Default Sandbox Gate:</span><br/>
-            Email: <span className="text-slate-300">akansha@ecotrack.com</span> | Password: <span className="text-slate-300">admin123</span>
-          </div>
         </div>
         <p className="mt-6 text-[10px] font-mono text-slate-600">Secure Protocol Management. Powered by MongoDB Cloud Instances.</p>
       </div>

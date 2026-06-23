@@ -3,29 +3,29 @@ import axios from 'axios';
 import Header from './components/Header';
 import Footer from './components/Footer';
 
-// 💡 Tumhara live Render backend URL
 const API_BASE_URL = 'https://eco-track-3-u27a.onrender.com';
 
 function App() {
-  // Authentication & Mock User Profile State for Header
-  const [isLogin, setIsLogin] = useState(true);
+  // Global Profile State including calculated age fields
   const [user, setUser] = useState({
     name: "Akansha Verma",
-    email: "akansha@ecotrack.com",
+    dob: "2003-06-15",
     age: "23",
     height: "165",
     weight: "58",
     bloodGroup: "B+"
   });
 
-  // Carbon Tracker Inputs State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formData, setFormData] = useState({ ...user });
+
+  // Footprint States
   const [travel, setTravel] = useState('');
   const [electricity, setElectricity] = useState('');
   const [food, setFood] = useState('');
   const [logs, setLogs] = useState([]);
   const [currentImpact, setCurrentImpact] = useState(null);
 
-  // Fetch Past Logs from MongoDB
   useEffect(() => {
     fetchLogs();
   }, []);
@@ -35,148 +35,122 @@ function App() {
       const response = await axios.get(`${API_BASE_URL}/api/logs`);
       setLogs(response.data);
     } catch (error) {
-      console.error("Error fetching logs:", error);
+      console.error(error);
     }
+  };
+
+  // 🧮 DYNAMIC AGE CALCULATOR ALGORITHM
+  const calculateAgeFromDOB = (birthDateString) => {
+    if (!birthDateString) return "0";
+    const today = new Date();
+    const birthDate = new Date(birthDateString);
+    let computedAge = today.getFullYear() - birthDate.getFullYear();
+    const monthDifference = today.getMonth() - birthDate.getMonth();
+    
+    if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+      computedAge--;
+    }
+    return computedAge >= 0 ? computedAge.toString() : "0";
+  };
+
+  const handleProfileUpdateSubmit = (e) => {
+    e.preventDefault();
+    // Sync live calculated age right before saving state
+    const exactCalculatedAge = calculateAgeFromDOB(formData.dob);
+    setUser({
+      ...formData,
+      age: exactCalculatedAge
+    });
+    setIsModalOpen(false);
   };
 
   const handleCalculate = async (e) => {
     e.preventDefault();
-    if (!travel || !electricity || !food) {
-      alert("Please fill all fields!");
-      return;
-    }
-
-    const payload = {
-      travel: parseFloat(travel),
-      electricity: parseFloat(electricity),
-      food: parseFloat(food)
-    };
-
+    if (!travel || !electricity || !food) return;
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/logs`, payload);
+      const response = await axios.post(`${API_BASE_URL}/api/logs`, {
+        travel: parseFloat(travel),
+        electricity: parseFloat(electricity),
+        food: parseFloat(food)
+      });
       setCurrentImpact(response.data.currentImpact);
-      fetchLogs(); // Refresh historical data table
-      
-      // Clear inputs
-      setTravel('');
-      setElectricity('');
-      setFood('');
-    } catch (error) {
-      console.error("Error saving log:", error);
+      fetchLogs();
+      setTravel(''); setElectricity(''); setFood('');
+    } catch (err) {
+      console.error(err);
     }
-  };
-
-  const handleLogout = () => {
-    alert("Logging out...");
-    // Handle logout flow here if needed
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
-      {/* 1. TOP DYNAMIC HEADER WITH USER PROFILE */}
-      <Header userProfile={user} onLogout={handleLogout} />
+    <div className="min-h-screen flex flex-col bg-gray-50 text-gray-800">
+      <Header userProfile={user} onOpenEditModal={() => { setFormData({ ...user }); setIsModalOpen(true); }} />
 
-      {/* 2. MAIN CORE LAYOUT CONTENT */}
       <main className="flex-grow p-4 sm:p-6 max-w-7xl mx-auto w-full">
-        {/* Top welcome section */}
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">Welcome Back, {user.name}!</h2>
-          <p className="text-sm text-gray-500">Track your sustainability metrics and maintain your physical vitals seamlessly.</p>
+        {/* Welcome Block */}
+        <div className="mb-6 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+          <h2 className="text-xl font-bold text-gray-800">Index Dashboard Overview</h2>
+          <p className="text-xs text-gray-500 mt-0.5">Welcome back, {user.name}. Click the top left menu button or adjust your dynamic biometrics panel via your avatar icon.</p>
         </div>
 
-        {/* Form and Impact Summary Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Calculate New Footprint Card */}
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-            <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-              📊 Calculate New Footprint
-            </h3>
-            <form onSubmit={handleCalculate} className="space-y-4">
+        {/* Core Content Grid Split */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-gray-400 mb-3">Calculate Footprint</h3>
+            <form onSubmit={handleCalculate} className="space-y-3 text-xs">
               <div>
-                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Monthly Travel (KM)</label>
-                <input 
-                  type="number" 
-                  value={travel} 
-                  onChange={(e) => setTravel(e.target.value)} 
-                  placeholder="e.g. 150" 
-                  className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500"
-                />
+                <label className="block font-semibold mb-1 text-gray-600">Travel Distance (KM)</label>
+                <input type="number" value={travel} onChange={e => setTravel(e.target.value)} className="w-full p-2.5 border rounded-lg focus:outline-none focus:border-emerald-500" placeholder="e.g. 80" />
               </div>
               <div>
-                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Electricity Bills (kWh)</label>
-                <input 
-                  type="number" 
-                  value={electricity} 
-                  onChange={(e) => setElectricity(e.target.value)} 
-                  placeholder="e.g. 200" 
-                  className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500"
-                />
+                <label className="block font-semibold mb-1 text-gray-600">Electricity Consumed (kWh)</label>
+                <input type="number" value={electricity} onChange={e => setElectricity(e.target.value)} className="w-full p-2.5 border rounded-lg focus:outline-none focus:border-emerald-500" placeholder="e.g. 150" />
               </div>
               <div>
-                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Meat/Food waste (KG)</label>
-                <input 
-                  type="number" 
-                  value={food} 
-                  onChange={(e) => setFood(e.target.value)} 
-                  placeholder="e.g. 30" 
-                  className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500"
-                />
+                <label className="block font-semibold mb-1 text-gray-600">Food/Organic waste (KG)</label>
+                <input type="number" value={food} onChange={e => setFood(e.target.value)} className="w-full p-2.5 border rounded-lg focus:outline-none focus:border-emerald-500" placeholder="e.g. 12" />
               </div>
-              <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold p-3 rounded-xl transition shadow-sm">
-                Calculate & Track
-              </button>
+              <button type="submit" className="w-full p-2.5 bg-emerald-600 text-white font-bold rounded-lg hover:bg-emerald-700 transition">Compute Data Stack</button>
             </form>
           </div>
 
-          {/* Dynamic Impact Status Summary Card */}
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-center items-center text-center">
-            <h3 className="text-lg font-bold text-gray-800 mb-2 self-start">💡 Your Impact Summary</h3>
+          <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-center items-center text-center">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-gray-400 self-start mb-2">Live Session Response</h3>
             {currentImpact ? (
-              <div className="w-full bg-emerald-50 border border-emerald-100 p-6 rounded-xl animate-fade-in">
-                <span className="text-4xl">🌱</span>
-                <h4 className="text-xl font-bold text-emerald-800 mt-2">Emission Computed Successfully!</h4>
-                <p className="text-3xl font-extrabold text-gray-800 mt-3">{currentImpact} <span className="text-sm font-normal text-gray-500">kg CO₂</span></p>
-                <p className="text-xs text-emerald-600 mt-2">This log has been pushed to your synchronized MongoDB storage layer.</p>
+              <div className="bg-emerald-50 text-emerald-800 p-4 rounded-lg border border-emerald-100 w-full">
+                <p className="text-2xl font-black">{currentImpact} kg</p>
+                <p className="text-[11px] text-emerald-600 mt-1">Carbon offset metrics recorded to remote server pipeline successfully.</p>
               </div>
             ) : (
-              <p className="text-sm text-gray-400 italic">
-                No footprint data logged yet in this session. Put values to see your instant footprint impact breakdown.
-              </p>
+              <p className="text-xs text-gray-400 italic">No real-time tracking operations committed this session.</p>
             )}
           </div>
         </div>
 
-        {/* Past Footprint Logs Table Section */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="p-5 border-b border-gray-100 bg-gray-50/50">
-            <h3 className="text-base font-bold text-gray-800 flex items-center gap-2">
-              📜 Past Footprint Logs (From MongoDB Atlas Cluster)
-            </h3>
-          </div>
+        {/* History Table */}
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden text-xs">
+          <div className="p-4 bg-gray-50/70 border-b font-bold text-gray-700">Cluster Database LedgerLogs</div>
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full text-left">
               <thead>
-                <tr className="bg-gray-100 text-gray-600 text-xs font-bold uppercase tracking-wider">
-                  <th className="p-4">Date Logged</th>
-                  <th className="p-4">Travel (KM)</th>
-                  <th className="p-4">Electricity (kWh)</th>
-                  <th className="p-4">Food (KG)</th>
-                  <th className="p-4 text-emerald-600">Total Carbon (CO₂)</th>
+                <tr className="bg-gray-100 text-gray-500 font-bold uppercase text-[10px] border-b">
+                  <th className="p-3">Log Timestamp</th>
+                  <th className="p-3">Travel</th>
+                  <th className="p-3">Power</th>
+                  <th className="p-3">Waste</th>
+                  <th className="p-3 text-emerald-600">Total Yield</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 text-sm text-gray-700">
-                {logs.length > 0 ? logs.map((log, index) => (
-                  <tr key={index} className="hover:bg-gray-50/50 transition">
-                    <td className="p-4 font-medium text-gray-500">{new Date(log.createdAt || Date.now()).toLocaleDateString('en-GB')}</td>
-                    <td className="p-4">{log.travel} km</td>
-                    <td className="p-4">{log.electricity} kWh</td>
-                    <td className="p-4">{log.food} kg</td>
-                    <td className="p-4 font-bold text-emerald-600">{log.totalCarbon || (log.travel*0.2 + log.electricity*0.5 + log.food*2.5).toFixed(2)} kg</td>
+              <tbody className="divide-y text-gray-600">
+                {logs.length > 0 ? logs.map((item, idx) => (
+                  <tr key={idx} className="hover:bg-gray-50/50">
+                    <td className="p-3 text-gray-400">{new Date(item.createdAt || Date.now()).toLocaleDateString('en-GB')}</td>
+                    <td className="p-3">{item.travel} km</td>
+                    <td className="p-3">{item.electricity} kWh</td>
+                    <td className="p-3">{item.food} kg</td>
+                    <td className="p-3 font-bold text-emerald-600">{item.totalCarbon || "0.00"} kg</td>
                   </tr>
                 )) : (
-                  <tr>
-                    <td colSpan="5" className="p-8 text-center text-gray-400 italic">No historical logs parsed from cluster database.</td>
-                  </tr>
+                  <tr><td colSpan="5" className="p-6 text-center italic text-gray-400">Empty logs buffer stack.</td></tr>
                 )}
               </tbody>
             </table>
@@ -184,8 +158,55 @@ function App() {
         </div>
       </main>
 
-      {/* 3. STANDALONE ATTACHED FOOTER COMPONENT */}
       <Footer />
+
+      {/* MODAL CONTROLLER OVERLAY FOR HEALTH VITALS SETUP */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex justify-center items-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-2xl max-w-sm w-full overflow-hidden border">
+            <div className="p-4 bg-emerald-600 text-white font-bold flex justify-between items-center text-sm">
+              <span>⚙️ Modulate Personal Profile Vitals</span>
+              <button type="button" onClick={() => setIsModalOpen(false)} className="hover:text-gray-200 text-base font-black">✕</button>
+            </div>
+            
+            <form onSubmit={handleProfileUpdateSubmit} className="p-4 space-y-3 text-xs">
+              <div>
+                <label className="block font-semibold text-gray-500 mb-1">Full Identity Name</label>
+                <input type="text" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="w-full p-2 border rounded-lg focus:outline-none" required />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-semibold text-gray-500 mb-1">BirthDate (DOB)</label>
+                  <input type="date" value={formData.dob} onChange={e => setFormData({ ...formData, dob: e.target.value })} className="w-full p-2 border rounded-lg focus:outline-none" required />
+                </div>
+                <div>
+                  <label className="block font-semibold text-gray-500 mb-1">Blood Group</label>
+                  <select value={formData.bloodGroup} onChange={e => setFormData({ ...formData, bloodGroup: e.target.value })} className="w-full p-2 border rounded-lg bg-white focus:outline-none">
+                    <option value="A+">A+</option><option value="A-">A-</option>
+                    <option value="B+">B+</option><option value="B-">B-</option>
+                    <option value="O+">O+</option><option value="O-">O-</option>
+                    <option value="AB+">AB+</option><option value="AB-">AB-</option>
+                  </select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-semibold text-gray-500 mb-1">Height Size (cm)</label>
+                  <input type="number" value={formData.height} onChange={e => setFormData({ ...formData, height: e.target.value })} className="w-full p-2 border rounded-lg focus:outline-none" required />
+                </div>
+                <div>
+                  <label className="block font-semibold text-gray-500 mb-1">Weight Mass (kg)</label>
+                  <input type="number" value={formData.weight} onChange={e => setFormData({ ...formData, weight: e.target.value })} className="w-full p-2 border rounded-lg focus:outline-none" required />
+                </div>
+              </div>
+              <div className="pt-2 flex space-x-2">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="w-1/2 p-2 border text-gray-400 font-semibold rounded-lg hover:bg-gray-50">Cancel</button>
+                <button type="submit" className="w-1/2 p-2 bg-emerald-600 text-white font-bold rounded-lg hover:bg-emerald-700">Save Setup</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

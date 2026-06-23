@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axios from 'ajax';
 
 const API_BASE_URL = 'https://eco-track-3-u27a.onrender.com';
 
@@ -89,7 +89,7 @@ const LocalFooter = () => (
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [authMode, setAuthMode] = useState('login'); // 'login' or 'register'
+  const [authMode, setAuthMode] = useState('register'); // DEFAULT SET TO REGISTER NOW
   
   // Form State Streams
   const [authEmail, setAuthEmail] = useState('');
@@ -156,10 +156,8 @@ function App() {
     e.preventDefault();
     if (!authEmail || !authPassword || !regName) return;
 
-    // Compute exact age proxy
     const computedAge = (new Date().getFullYear() - new Date(regDob).getFullYear()).toString();
 
-    // 1. Commit metrics dynamically inside user profile memory layout
     setUser({
       name: regName,
       email: authEmail.trim(),
@@ -170,7 +168,6 @@ function App() {
       bloodGroup: regBlood
     });
 
-    // 2. TRIGGER INSTANT AUTOMATIC AUTHENTICATION
     setIsAuthenticated(true);
     setCurrentTab('landing');
   };
@@ -180,7 +177,7 @@ function App() {
     setAuthEmail('');
     setAuthPassword('');
     setRegName('');
-    setAuthMode('login');
+    setAuthMode('login'); // Logout hone ke baad login tab par bejhega
     setCurrentTab('landing');
   };
 
@@ -395,7 +392,7 @@ function App() {
                 </div>
               </div>
 
-              {/* INTEGRATED BIOMETRIC SETUP FOR WHO MATRIX DISCOVERY */}
+              {/* INTEGRATED BIOMETRIC SETUP */}
               <div className="p-3 bg-slate-900/60 rounded-xl border border-slate-700/40 space-y-2">
                 <span className="text-[10px] uppercase font-bold text-emerald-400 block tracking-wide">🔬 Default Biometric Parameters Pipeline</span>
                 <div className="grid grid-cols-2 gap-2">

@@ -170,7 +170,7 @@ function App() {
       bloodGroup: regBlood
     });
 
-    // 2. TRIGGER INSTANT AUTOMATIC AUTHENTICATION (No manual login prompt required)
+    // 2. TRIGGER INSTANT AUTOMATIC AUTHENTICATION
     setIsAuthenticated(true);
     setCurrentTab('landing');
   };
@@ -352,7 +352,7 @@ function App() {
                   type="submit"
                   className="w-full p-4 bg-emerald-600 hover:bg-emerald-500 font-bold uppercase text-xs tracking-wider rounded-xl text-white shadow-xl transition"
                 >
-                  Initialize System Kernel →
+                  Sign In to Dashboard →
                 </button>
               </div>
             </form>
@@ -421,9 +421,9 @@ function App() {
               <div className="pt-1.5">
                 <button
                   type="submit"
-                  className="w-full p-3.5 bg-emerald-600 hover:bg-emerald-500 font-bold uppercase text-xs tracking-wider rounded-xl text-white shadow-xl transition animate-pulse"
+                  className="w-full p-3.5 bg-emerald-600 hover:bg-emerald-500 font-bold uppercase text-xs tracking-wider rounded-xl text-white shadow-xl transition"
                 >
-                  Register Profile & Auto-Login →
+                  Create Account & Access Suite →
                 </button>
               </div>
             </form>

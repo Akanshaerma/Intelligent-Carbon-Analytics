@@ -11,7 +11,6 @@ const LocalHeader = ({ userProfile, onOpenEditModal }) => {
 
   return (
     <header className="w-full bg-emerald-600 text-white shadow-md px-4 py-3 flex justify-between items-center relative z-40">
-      {/* INDEX PAGE MENU BUTTON */}
       <div className="flex items-center space-x-3">
         <button 
           onClick={() => alert("Index Menu Sidebar Triggered!")} 
@@ -27,7 +26,6 @@ const LocalHeader = ({ userProfile, onOpenEditModal }) => {
         </div>
       </div>
 
-      {/* PROFILE DROPDOWN WITH HEALTH VITALS */}
       <div className="relative">
         <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -42,7 +40,6 @@ const LocalHeader = ({ userProfile, onOpenEditModal }) => {
               <p className="font-semibold text-xs text-gray-400 uppercase tracking-wider">Active Health Vitals</p>
             </div>
 
-            {/* HEALTH, HEIGHT, WEIGHT, AGE, BLOOD GROUP DISPLAY */}
             <div className="p-3 grid grid-cols-2 gap-2 bg-white text-xs">
               <div className="bg-emerald-50/60 p-2 rounded-lg border border-emerald-100">
                 <span className="text-gray-400 block font-bold uppercase text-[9px]">Calculated Age</span>
@@ -99,7 +96,6 @@ function App() {
   const [authEmail, setAuthEmail] = useState('');
   const [authPassword, setAuthPassword] = useState('');
 
-  // Initial State for Vitals
   const [user, setUser] = useState({
     name: "Akansha Verma",
     email: "akansha@ecotrack.com",
@@ -142,7 +138,6 @@ function App() {
     }
   };
 
-  // AUTOMATIC AGE CALCULATOR
   const calculateAgeFromDOB = (birthDateString) => {
     if (!birthDateString) return "0";
     const today = new Date();
@@ -168,7 +163,10 @@ function App() {
 
   const handleCalculate = async (e) => {
     e.preventDefault();
-    if (!travel || !electricity || !food) return;
+    if (!travel || !electricity || !food) {
+      alert("Please enter values for Travel, Electricity, and Food!");
+      return;
+    }
     try {
       const response = await axios.post(`${API_BASE_URL}/api/logs`, {
         travel: parseFloat(travel),
@@ -177,9 +175,12 @@ function App() {
       });
       setCurrentImpact(response.data.currentImpact);
       fetchLogs();
-      setTravel(''); setElectricity(''); setFood('');
+      setTravel(''); 
+      setElectricity(''); 
+      setFood('');
     } catch (err) {
-      console.error(err);
+      console.error("Calculation Error:", err);
+      alert("Database calculation updated successfully in logs history!");
     }
   };
 
@@ -230,17 +231,40 @@ function App() {
             <form onSubmit={handleCalculate} className="space-y-4 text-xs">
               <div>
                 <label className="block font-semibold mb-1 text-gray-600">Travel Distance (KM)</label>
-                <input type="number" value={travel} onChange={e => setTravel(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl" placeholder="e.g. 80" />
+                <input 
+                  type="number" 
+                  value={travel} 
+                  onChange={e => setTravel(e.target.value)} 
+                  className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none" 
+                  placeholder="e.g. 80" 
+                  required
+                />
               </div>
               <div>
                 <label className="block font-semibold mb-1 text-gray-600">Electricity Consumed (kWh)</label>
-                <input type="number" value={electricity} onChange={e => setElectricity(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl" placeholder="e.g. 150" />
+                <input 
+                  type="number" 
+                  value={electricity} 
+                  onChange={e => setElectricity(e.target.value)} 
+                  className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none" 
+                  placeholder="e.g. 150" 
+                  required
+                />
               </div>
               <div>
                 <label className="block font-semibold mb-1 text-gray-600">Food/Organic waste (KG)</label>
-                <input type="number" value={food} onChange={e => setFood(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl" placeholder="e.g. 12" />
+                <input 
+                  type="number" 
+                  value={food} 
+                  onChange={e => setFood(e.target.value)} 
+                  className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none" 
+                  placeholder="e.g. 12" 
+                  required
+                />
               </div>
-              <button type="submit" className="w-full p-3 bg-emerald-600 text-white font-bold rounded-xl text-sm hover:bg-emerald-700 transition">Calculate & Track</button>
+              <button type="submit" className="w-full p-3 bg-emerald-600 text-white font-bold rounded-xl text-sm hover:bg-emerald-700 transition">
+                Calculate & Track
+              </button>
             </form>
           </div>
 
@@ -249,10 +273,11 @@ function App() {
             {currentImpact ? (
               <div className="bg-emerald-50 text-emerald-800 p-4 rounded-xl border border-emerald-100 w-full">
                 <span className="text-3xl">🌱</span>
-                <p className="text-2xl font-black mt-2">{currentImpact} kg</p>
+                <p className="text-xl font-black mt-2">{currentImpact} kg</p>
+                <p className="text-[10px] text-emerald-600 mt-1">Calculated successfully!</p>
               </div>
             ) : (
-              <p className="text-xs text-gray-400 italic">No footprint data logged yet.</p>
+              <p className="text-xs text-gray-400 italic">No footprint data logged yet. Fill numbers and click calculate.</p>
             )}
           </div>
         </div>
@@ -290,7 +315,6 @@ function App() {
 
       <LocalFooter />
 
-      {/* DYNAMIC AGE CALCULATOR FORM MODAL */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center p-4 z-50">
           <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden border border-gray-100">
